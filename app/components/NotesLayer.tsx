@@ -4,12 +4,11 @@ import type { NotesWindowProps } from "../data/notesWindow.types";
 
 type NotesLayerProps = {
   notes: Array<
-    Pick<NotesWindowProps, "windowTitle" | "title" | "text" | "initialPosition">
+    Pick<NotesWindowProps, "windowTitle" | "text" | "initialPosition">
   >;
   notesOpacity: number;
   positions: Array<{ x: number; y: number }>;
   heroRef: RefObject<HTMLDivElement>;
-  onOpenChange: (isOpen: boolean) => void;
 };
 
 export function NotesLayer({
@@ -17,23 +16,23 @@ export function NotesLayer({
   notesOpacity,
   positions,
   heroRef,
-  onOpenChange,
 }: NotesLayerProps) {
+  const isInteractive = notesOpacity >= 0.05;
+
   return (
     <div
-      className="relative min-h-screen transition-opacity duration-300 ease-out"
+      className="relative min-h-0 transition-opacity duration-300 ease-out md:min-h-screen"
       style={{
         opacity: notesOpacity,
-        pointerEvents: notesOpacity < 0.05 ? "none" : "auto",
+        pointerEvents: isInteractive ? "auto" : "none",
       }}
     >
       {notes.map((note, index) => (
         <NotesWindow
-          key={note.title}
+          key={note.windowTitle}
           {...note}
           avoidRef={heroRef}
           initialPosition={positions[index % positions.length]}
-          onOpenChange={onOpenChange}
         />
       ))}
     </div>

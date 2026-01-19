@@ -17,6 +17,8 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+const bodyClassName = `${geistSans.variable} ${geistMono.variable} ${inter.variable} grid-background antialiased`;
+
 export const metadata: Metadata = {
   title: "Gentle Interlude Studio",
   description: "Your early stage design partner.",
@@ -29,11 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} grid-background antialiased`}
-      >
-        {children}
-      </body>
+      <body className={bodyClassName}>{children}</body>
     </html>
   );
 }

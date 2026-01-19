@@ -1,5 +1,6 @@
 "use client";
 
+import type { KeyboardEvent } from "react";
 import { useEffect, useRef } from "react";
 import { motion, useMotionValue } from "motion/react";
 import type { NotesWindowProps } from "../data/notesWindow.types";
@@ -12,7 +13,6 @@ import {
 export function NotesWindow({
   text,
   windowTitle,
-  dragConstraints,
   avoidRef,
   initialPosition,
 }: NotesWindowProps) {
@@ -55,6 +55,13 @@ export function NotesWindow({
       return;
     }
     playClick();
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      playClick();
+    }
   };
 
   const handleDragEnd = () => {
@@ -108,48 +115,34 @@ export function NotesWindow({
   };
 
   return (
-    <>
-      <motion.div
-        ref={windowRef}
-        role="button"
-        tabIndex={0}
-        onClick={handleClick}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            playClick();
-          }
-        }}
-        drag
-        dragConstraints={dragConstraints}
-        dragElastic={0.15}
-        dragMomentum={false}
-        onDragStart={() => {
-          draggingRef.current = true;
-          hasDraggedRef.current = true;
-        }}
-        onDragEnd={handleDragEnd}
-        whileTap={{ scale: 0.99 }}
-        className={`absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 select-none rounded-xl ${borderZinc200} bg-[#fbfbfb] shadow-[0_18px_40px_-30px_rgba(0,0,0,0.45)]`}
-        style={{ width: 300, height: 250, x, y }}
-      >
-        <div className="flex h-9 items-center gap-2 rounded-t-xl border-b border-zinc-200 bg-linear-to-b from-white/80 to-white/40 px-3">
-          {/* <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
-          <span className="h-3 w-3 rounded-full bg-[#ffbd2e]" />
-          <span className="h-3 w-3 rounded-full bg-[#28c840]" /> */}
-          <span
-            className={`ml-2 text-xs font-medium ${textZinc500} ${fontArialNarrow} uppercase`}
-          >
-            {windowTitle}
-          </span>
-        </div>
-        <div className="flex h-[calc(100%-36px)] flex-col gap-2 p-4">
-          {/* <h3 className="text-zinc-900">{title}</h3> */}
-          <p className="text-zinc-700">{text}</p>
-        </div>
-      </motion.div>
-
-      
-    </>
+    <motion.div
+      ref={windowRef}
+      role="button"
+      tabIndex={0}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      drag
+      dragElastic={0.15}
+      dragMomentum={false}
+      onDragStart={() => {
+        draggingRef.current = true;
+        hasDraggedRef.current = true;
+      }}
+      onDragEnd={handleDragEnd}
+      whileTap={{ scale: 0.99 }}
+      className={`absolute left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 select-none rounded-xl ${borderZinc200} bg-[#fbfbfb] shadow-[0_18px_40px_-30px_rgba(0,0,0,0.45)] md:block`}
+      style={{ width: 300, height: 250, x, y }}
+    >
+      <div className="flex h-9 items-center gap-2 rounded-t-xl border-b border-zinc-200 bg-linear-to-b from-white/80 to-white/40 px-3">
+        <span
+          className={`ml-2 text-xs font-medium ${textZinc500} ${fontArialNarrow} uppercase`}
+        >
+          {windowTitle}
+        </span>
+      </div>
+      <div className="flex h-[calc(100%-36px)] flex-col gap-2 p-4">
+        <p className="text-zinc-700">{text}</p>
+      </div>
+    </motion.div>
   );
 }

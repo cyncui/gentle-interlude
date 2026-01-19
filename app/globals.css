@@ -33,20 +33,22 @@
   }
 }
 
-html,
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: "TimesNow", "Times New Roman", serif;
-  font-size: 18px;
-  line-height: 24px;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
+@layer base {
+  html,
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: "TimesNow", "Times New Roman", serif;
+    font-size: 18px;
+    line-height: 24px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
 
-p {
-  font-family: var(--font-arial-narrow);
-  font-size: 18px;
+  p {
+    font-family: var(--font-arial-narrow);
+    font-size: 18px;
+  }
 }
 
 html::-webkit-scrollbar,
@@ -67,34 +69,35 @@ body::-webkit-scrollbar {
   display: none;
 }
 
-.font-arial-narrow {
-  font-family: var(--font-arial-narrow);
+@layer base {
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: var(--font-times-now);
+  }
+
+  h1 {
+    font-family: "ArtCompanyMonoTest", ui-monospace, SFMono-Regular, Menlo,
+      Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    letter-spacing: 0;
+    text-transform: normal;
+  }
+
+  h3 {
+    line-height: 24px;
+  }
 }
 
-h2,
-h3,
-h4,
-h5 {
-  font-family: var(--font-times-now);
-}
-
-h1 {
-  font-family: "ArtCompanyMonoTest", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 40px;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-h2 {
-  font-size: 20px;
-  letter-spacing: 0;
-  text-transform: normal;
-}
-
-h3 {
-  font-size: 18px;
-  line-height: 24px;
+@layer utilities {
+  .font-arial-narrow {
+    font-family: var(--font-arial-narrow);
+  }
 }
 
 

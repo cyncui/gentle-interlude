@@ -2,12 +2,25 @@
 
 import { RefObject, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { HeroOverlay } from "./HeroOverlay";
+import { HeroSection } from "./HeroSection";
 import { HomeMain } from "./HomeMain";
 import { NotesLayer } from "./NotesLayer";
 import { ProjectsSection } from "./ProjectsSection";
 import { Footer } from "./Footer";
 import { notesWindowData } from "../data/notesWindow.data";
 import { projectsData } from "../data/projects.data";
+
+const MOBILE_QUERY = "(max-width: 639px)";
+const SCROLL_RANGE = 320;
+const NOTES_FADE_MULTIPLIER = 2.6;
+const CONDENSED_SCROLL_THRESHOLD = 0.4;
+const HERO_LEFT_MARGIN = 32;
+const HERO_TOP_MARGIN = 20;
+const WINDOW_HALF_SIZE = 150;
+const WINDOW_PADDING = 20;
+
+const getRandomOffset = (min: number, max: number) =>
+  Math.floor(min + Math.random() * (max - min));
 
 export function HomePage() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -21,7 +34,7 @@ export function HomePage() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [heroOffset, setHeroOffset] = useState({ x: 0, y: 0 });
   const [isHeroHidden, setIsHeroHidden] = useState(false);
-  const [openNotesCount, setOpenNotesCount] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useLayoutEffect(() => {
     const computePositions = () => {
@@ -30,21 +43,21 @@ export function HomePage() {
       }
 
       if (!cornerOffsetsRef.current) {
-        const randomOffsetX = () => Math.floor(-20 + Math.random() * 16);
-        const randomOffsetY = () => Math.floor(20 + Math.random() * 16);
-        cornerOffsetsRef.current = [
-          { x: randomOffsetX(), y: randomOffsetY() },
-          { x: randomOffsetX(), y: randomOffsetY() },
-          { x: randomOffsetX(), y: randomOffsetY() },
-          { x: randomOffsetX(), y: randomOffsetY() },
-        ];
+        cornerOffsetsRef.current = Array.from({ length: 4 }, () => ({
+          x: getRandomOffset(-20, -4),
+          y: getRandomOffset(20, 36),
+        }));
       }
 
       const { innerWidth, innerHeight } = window;
-      const halfWindowSize = 150;
-      const padding = 20;
-      const offsetX = Math.max(0, innerWidth / 2 - halfWindowSize - padding);
-      const offsetY = Math.max(0, innerHeight / 2 - halfWindowSize - padding);
+      const offsetX = Math.max(
+        0,
+        innerWidth / 2 - WINDOW_HALF_SIZE - WINDOW_PADDING,
+      );
+      const offsetY = Math.max(
+        0,
+        innerHeight / 2 - WINDOW_HALF_SIZE - WINDOW_PADDING,
+      );
       const cornerOffsets = cornerOffsetsRef.current;
 
       setPositions([
@@ -82,11 +95,10 @@ export function HomePage() {
       }
 
       const heroRect = heroRef.current.getBoundingClientRect();
-      const leftMargin = 32;
-      const topMargin = 20;
-      const targetX = leftMargin - (window.innerWidth / 2 - heroRect.width / 2);
+      const targetX =
+        HERO_LEFT_MARGIN - (window.innerWidth / 2 - heroRect.width / 2);
       const targetY =
-        topMargin - (window.innerHeight / 2 - heroRect.height / 2);
+        HERO_TOP_MARGIN - (window.innerHeight / 2 - heroRect.height / 2);
 
       setHeroOffset({ x: targetX, y: targetY });
     };
@@ -101,7 +113,7 @@ export function HomePage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const progress = Math.min(window.scrollY / 320, 1);
+      const progress = Math.min(window.scrollY / SCROLL_RANGE, 1);
       setScrollProgress(progress);
       if (!heroRef.current || !projectsSectionRef.current) {
         return;
@@ -122,43 +134,61 @@ export function HomePage() {
     };
   }, []);
 
+  useEffect(() => {
+    const media = window.matchMedia(MOBILE_QUERY);
+    const updateIsMobile = () => {
+      setIsMobile(media.matches);
+    };
+    updateIsMobile();
+    media.addEventListener("change", updateIsMobile);
+
+    return () => {
+      media.removeEventListener("change", updateIsMobile);
+    };
+  }, []);
+
   const heroTranslate = {
     x: heroOffset.x * scrollProgress,
     y: heroOffset.y * scrollProgress,
   };
-  const notesOpacity = 1 - Math.min(scrollProgress * 2.6, 1);
-  const isCondensedHero = scrollProgress > 0.4;
+  const notesOpacity = 1 - Math.min(scrollProgress * NOTES_FADE_MULTIPLIER, 1);
+  const isCondensedHero =
+    isMobile || scrollProgress > CONDENSED_SCROLL_THRESHOLD;
   const isHeroVisible = !isHeroHidden;
+  const mobileHero = isMobile ? (
+    <div className="px-6 pt-8">
+      <HeroSection ref={heroRef} isCondensed />
+    </div>
+  ) : null;
 
   return (
     <div className="relative min-h-screen overflow-x-hidden">
-      <HeroOverlay
-        heroRef={heroRef as RefObject<HTMLDivElement>}
-        heroTranslate={heroTranslate}
-        isCondensed={isCondensedHero}
-        isHeroVisible={isHeroVisible}
-      />
+      {!isMobile ? (
+        <HeroOverlay
+          heroRef={heroRef as RefObject<HTMLDivElement>}
+          heroTranslate={heroTranslate}
+          isCondensed={isCondensedHero}
+          isHeroVisible={isHeroVisible}
+        />
+      ) : null}
 
       <HomeMain
-        openNotesCount={openNotesCount}
         notesLayer={
           <NotesLayer
             notes={notesWindowData}
             notesOpacity={notesOpacity}
             positions={positions}
             heroRef={heroRef as RefObject<HTMLDivElement>}
-            onOpenChange={(isOpen) => {
-              setOpenNotesCount((count) =>
-                Math.max(0, count + (isOpen ? 1 : -1)),
-              );
-            }}
           />
         }
         projectsSection={
-          <ProjectsSection
-            projects={projectsData}
-            sectionRef={projectsSectionRef}
-          />
+          <>
+            {mobileHero}
+            <ProjectsSection
+              projects={projectsData}
+              sectionRef={projectsSectionRef}
+            />
+          </>
         }
       />
 
