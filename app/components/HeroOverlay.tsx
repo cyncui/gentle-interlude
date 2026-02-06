@@ -15,16 +15,15 @@ export function HeroOverlay({
   isCondensed,
   isHeroVisible,
 }: HeroOverlayProps) {
-  const baseX = "-50%";
-  const baseY = isCondensed ? "-80%" : "-50%";
-
   return (
     <div
-      className={`pointer-events-none fixed left-1/2 top-1/2 z-30 ${transitionEaseOut} ${
+      className={`pointer-events-none fixed z-30 ${transitionEaseOut} ${
         isHeroVisible ? "opacity-100" : "opacity-0"
-      }`}
+      } ${isCondensed ? "left-0 top-0 w-full px-6 pt-8" : "left-1/2 top-1/2"}`}
       style={{
-        transform: `translate(calc(${baseX} + ${heroTranslate.x}px), calc(${baseY} + ${heroTranslate.y}px))`,
+        transform: isCondensed
+          ? "none"
+          : `translate(calc(-50% + ${heroTranslate.x}px), calc(-50% + ${heroTranslate.y}px))`,
       }}
     >
       <div className="origin-top-left transition-transform duration-300 ease-out">

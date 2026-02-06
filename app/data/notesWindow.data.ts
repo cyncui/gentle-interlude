@@ -10,7 +10,7 @@ export const notesWindowData: Array<
   },
   {
     windowTitle: "About",
-    text: "We are a small team of (2!) designers, developers, marketers, and writers. We have experience working for a variety of clients across many industries.",
+    text: "This is the studio practice of Cynthia Cui, a designer and website developer. I have experience working for a variety of clients across many industries, from non-profits to startups and academic institutions.",
     initialPosition: { x: 220, y: -330 },
   },
   {

@@ -35,6 +35,7 @@ export function HomePage() {
   const [heroOffset, setHeroOffset] = useState({ x: 0, y: 0 });
   const [isHeroHidden, setIsHeroHidden] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const hasProjects = projectsData.length > 0;
 
   useLayoutEffect(() => {
     const computePositions = () => {
@@ -162,7 +163,7 @@ export function HomePage() {
   ) : null;
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className={`relative min-h-screen overflow-x-hidden ${!hasProjects ? "h-screen overflow-hidden" : ""}`}>
       {!isMobile ? (
         <HeroOverlay
           heroRef={heroRef as RefObject<HTMLDivElement>}
